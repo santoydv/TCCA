@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 // Import models to ensure all models are registered
 import '@/models';
 import Office from '@/models/Office';
@@ -8,22 +9,7 @@ import Office from '@/models/Office';
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
-    
-    const searchParams = request.nextUrl.searchParams;
-    const city = searchParams.get('city');
-    const state = searchParams.get('state');
-    
-    const query: any = {};
-    
-    if (city) {
-      query.city = city;
-    }
-    
-    if (state) {
-      query.state = state;
-    }
-    
-    const offices = await Office.find(query).sort({ name: 1 });
+    const offices = await Office.find({});
     
     return NextResponse.json(offices);
   } catch (error) {
@@ -38,40 +24,45 @@ export async function GET(request: NextRequest) {
 // POST - create a new office
 export async function POST(request: NextRequest) {
   try {
-    await connectToDatabase();
-    
-    const data = await request.json();
+    const body = await request.json();
     
     // Validate required fields
-    if (!data.name || !data.address || !data.city || !data.state || !data.zipCode || !data.phone || !data.email) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+    const requiredFields = ['name', 'address', 'city', 'country', 'postalCode', 'phoneNumber', 'email'];
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return NextResponse.json(
+          { error: `The field '${field}' is required` },
+          { status: 400 }
+        );
+      }
+    }
+    
+    const newOffice = {
+      name: body.name,
+      address: body.address,
+      city: body.city,
+      country: body.country,
+      postalCode: body.postalCode,
+      phoneNumber: body.phoneNumber,
+      email: body.email,
+      isHeadOffice: body.isHeadOffice || false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await connectToDatabase();
+    
+    // If this is a head office and isHeadOffice is true, update all other offices
+    if (newOffice.isHeadOffice) {
+      await Office.updateMany(
+        { isHeadOffice: true },
+        { $set: { isHeadOffice: false } }
       );
     }
     
-    // Check if office with the same name already exists
-    const existingOffice = await Office.findOne({ name: data.name });
+    const result = await Office.create(newOffice);
     
-    if (existingOffice) {
-      return NextResponse.json(
-        { error: 'Office with this name already exists' },
-        { status: 400 }
-      );
-    }
-    
-    // Create the office
-    const office = await Office.create({
-      name: data.name,
-      address: data.address,
-      city: data.city,
-      state: data.state,
-      zipCode: data.zipCode,
-      phone: data.phone,
-      email: data.email,
-    });
-    
-    return NextResponse.json(office, { status: 201 });
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
     console.error('Error creating office:', error);
     return NextResponse.json(
