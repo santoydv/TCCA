@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
-import User, { UserRole } from '@/models/User';
+import User from '@/models/User';
+import { UserRole } from '@/types';
 import { Types } from 'mongoose';
 import { hash } from 'bcrypt';
+import authOptions from '@/lib/auth/auth-options';
 
 // GET all users
 export async function GET(request: NextRequest) {
@@ -11,7 +13,7 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     
     // For security, this endpoint should be limited to admins
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json(
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
     
     // For security, this endpoint should be limited to admins
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json(
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     
     // Validate required fields
-    if (!data.name || !data.email || !data.password || !data.role || !data.office) {
+    if (!data.name || !data.email || !data.password || !data.role) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -87,14 +89,20 @@ export async function POST(request: NextRequest) {
     // Hash the password
     const hashedPassword = await hash(data.password, 10);
     
-    // Create the user
-    const user = await User.create({
+    // Create the user with optional office
+    const userData: any = {
       name: data.name,
       email: data.email,
       password: hashedPassword,
       role: data.role,
-      office: new Types.ObjectId(data.office),
-    });
+    };
+    
+    // Add office if provided
+    if (data.office) {
+      userData.office = new Types.ObjectId(data.office);
+    }
+    
+    const user = await User.create(userData);
     
     // Return user data without password
     const { password, ...userWithoutPassword } = user.toObject();

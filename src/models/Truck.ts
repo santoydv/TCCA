@@ -7,10 +7,11 @@ export interface TruckDocument extends Document {
   registrationNumber: string;
   truckModel: string;
   capacity: number;
-  office: mongoose.Types.ObjectId;
+  currentOffice: mongoose.Types.ObjectId;
   status: TruckStatus;
   maintenanceStatus: string;
   lastMaintenance: Date;
+  manufactureYear: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +33,7 @@ const TruckSchema = new Schema<TruckDocument>(
       type: Number,
       required: [true, 'Capacity is required'],
     },
-    office: {
+    currentOffice: {
       type: Schema.Types.ObjectId,
       ref: 'Office',
       required: [true, 'Office is required'],
@@ -50,6 +51,10 @@ const TruckSchema = new Schema<TruckDocument>(
     lastMaintenance: {
       type: Date,
       default: Date.now,
+    },
+    manufactureYear: {
+      type: Number,
+      required: [true, 'Manufacture year is required'],
     },
   },
   {

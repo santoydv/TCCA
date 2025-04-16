@@ -5,8 +5,23 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ChevronRight, BarChart2, TrendingUp, Truck, Package } from 'lucide-react';
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useSession } from 'next-auth/react';
+import { UserRole } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function ReportsDashboard() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const userRole = session?.user?.role;
+
+  // Redirect non-managers/non-admins
+  React.useEffect(() => {
+    if (session && userRole !== UserRole.ADMIN && userRole !== UserRole.MANAGER) {
+      router.push('/dashboard');
+    }
+  }, [session, userRole, router]);
+
   const reports = [
     {
       title: 'Revenue Reports',
@@ -34,11 +49,25 @@ export default function ReportsDashboard() {
     },
   ];
 
+  // If not admin or manager, don't render the page content
+  if (userRole !== UserRole.ADMIN && userRole !== UserRole.MANAGER) {
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-black mb-2">Access Denied</h1>
+            <p className="text-gray-700">You don't have permission to view this page.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Reports Dashboard</h1>
-        <p className="text-muted-foreground">
+    <DashboardLayout>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-black">Reports Dashboard</h1>
+        <p className="text-gray-700">
           Access and generate reports to analyze business performance
         </p>
       </div>
@@ -50,8 +79,8 @@ export default function ReportsDashboard() {
               <CardHeader className="flex flex-row items-center gap-4">
                 {report.icon}
                 <div>
-                  <CardTitle>{report.title}</CardTitle>
-                  <CardDescription>{report.description}</CardDescription>
+                  <CardTitle className="text-black">{report.title}</CardTitle>
+                  <CardDescription className="text-gray-700">{report.description}</CardDescription>
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end">
@@ -63,6 +92,6 @@ export default function ReportsDashboard() {
           </Link>
         ))}
       </div>
-    </div>
+    </DashboardLayout>
   );
 } 

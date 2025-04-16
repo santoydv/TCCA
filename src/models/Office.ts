@@ -3,7 +3,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface OfficeDocument extends Document {
   name: string;
   address: string;
-  contactNumber: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  email: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,9 +25,29 @@ const OfficeSchema = new Schema<OfficeDocument>(
       required: [true, 'Office address is required'],
       trim: true,
     },
-    contactNumber: {
+    city: {
       type: String,
-      required: [true, 'Contact number is required'],
+      required: [true, 'City is required'],
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: [true, 'State is required'],
+      trim: true,
+    },
+    zipCode: {
+      type: String,
+      required: [true, 'Zip code is required'],
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
       trim: true,
     },
   },

@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
       manufactureYear: Number(data.manufactureYear),
       currentOffice: new Types.ObjectId(data.currentOffice),
       status: data.status || TruckStatus.AVAILABLE,
-      lastMaintenance: data.lastMaintenance || new Date(),
+      maintenanceStatus: data.maintenanceStatus || 'Ready',
+      lastMaintenance: data.lastMaintenance ? new Date(data.lastMaintenance) : new Date(),
     });
     
     return NextResponse.json(truck, { status: 201 });

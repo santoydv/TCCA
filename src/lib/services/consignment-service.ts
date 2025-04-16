@@ -85,7 +85,7 @@ export const checkAndAllocateTruck = async (
   if (totalVolume >= 500) {
     // Find an available truck at this office
     const availableTruck = await Truck.findOne({
-      office: new Types.ObjectId(sourceOfficeId),
+      currentOffice: new Types.ObjectId(sourceOfficeId),
       status: TruckStatus.AVAILABLE
     });
     

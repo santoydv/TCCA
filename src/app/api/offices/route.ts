@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import Office, { OfficeType } from '@/models/Office';
+import Office from '@/models/Office';
 
 // GET all offices
 export async function GET(request: NextRequest) {
@@ -8,12 +8,17 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     
     const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get('type');
+    const city = searchParams.get('city');
+    const state = searchParams.get('state');
     
     const query: any = {};
     
-    if (type) {
-      query.type = type;
+    if (city) {
+      query.city = city;
+    }
+    
+    if (state) {
+      query.state = state;
     }
     
     const offices = await Office.find(query).sort({ name: 1 });
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     
     // Validate required fields
-    if (!data.name || !data.type || !data.address) {
+    if (!data.name || !data.address || !data.city || !data.state || !data.zipCode || !data.phone || !data.email) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -53,30 +58,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // If this is set to be a head office, check if one already exists
-    if (data.type === OfficeType.HEAD_OFFICE) {
-      const existingHeadOffice = await Office.findOne({ type: OfficeType.HEAD_OFFICE });
-      
-      if (existingHeadOffice) {
-        return NextResponse.json(
-          { error: 'A head office already exists. There can be only one head office.' },
-          { status: 400 }
-        );
-      }
-    }
-    
     // Create the office
     const office = await Office.create({
       name: data.name,
-      type: data.type,
-      address: {
-        street: data.address.street,
-        city: data.address.city,
-        state: data.address.state,
-        country: data.address.country,
-        postalCode: data.address.postalCode,
-      },
-      phoneNumber: data.phoneNumber,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      zipCode: data.zipCode,
+      phone: data.phone,
       email: data.email,
     });
     
