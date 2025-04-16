@@ -30,7 +30,7 @@ export async function GET(
       return NextResponse.json(
         { error: 'Invalid allocation ID' },
         { status: 400 }
-      );
+      ); 
     }
     
     const allocation = await TruckAllocation.findById(id)
