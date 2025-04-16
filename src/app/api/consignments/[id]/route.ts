@@ -6,12 +6,12 @@ import { Types } from 'mongoose';
 // GET consignment by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -45,12 +45,12 @@ export async function GET(
 // PATCH - update consignment
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -103,12 +103,12 @@ export async function PATCH(
 // DELETE consignment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(

@@ -8,7 +8,7 @@ import { hash } from 'bcrypt';
 // GET user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
@@ -23,7 +23,7 @@ export async function GET(
       );
     }
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function GET(
 // PATCH - update user
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
@@ -77,7 +77,7 @@ export async function PATCH(
       );
     }
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -140,7 +140,7 @@ export async function PATCH(
 // DELETE user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
@@ -155,7 +155,7 @@ export async function DELETE(
       );
     }
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(

@@ -19,12 +19,12 @@ interface PopulatedTruck {
 // GET allocation by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -59,12 +59,12 @@ export async function GET(
 // PATCH - update allocation status (dispatch, complete, etc.)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -188,12 +188,12 @@ export async function PATCH(
 // DELETE allocation (only allowed for PLANNED allocations)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
