@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DateRange } from 'react-day-picker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -72,7 +72,8 @@ type Truck = {
   registrationNumber: string;
 };
 
-export default function TruckReports() {
+// Client component that uses useSearchParams
+function TruckReportsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -589,5 +590,14 @@ export default function TruckReports() {
         )}
       </Tabs>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function TruckReports() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner /></div>}>
+      <TruckReportsClient />
+    </Suspense>
   );
 } 
