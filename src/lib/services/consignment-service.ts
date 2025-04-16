@@ -1,4 +1,6 @@
 import connectToDatabase from '../mongodb';
+// Import models to ensure all models are registered
+import '@/models';
 import Consignment, { ConsignmentDocument } from '@/models/Consignment';
 import { ConsignmentStatus, TruckStatus } from '@/types';
 import TruckAllocation, { AllocationStatus, ITruckAllocation } from '@/models/TruckAllocation';

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
+// Import models to ensure all models are registered
+import '@/models';
 import Trip from '@/models/Trip';
 import Truck from '@/models/Truck';
+import Consignment, { ConsignmentStatus } from '@/models/Consignment';
+import TruckAllocation from '@/models/TruckAllocation';
 import { UserRole } from '@/models/User';
 import { Types } from 'mongoose';
 

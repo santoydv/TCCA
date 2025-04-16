@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
+// Import models to ensure all models are registered
+import '@/models';
 import Consignment, { ConsignmentStatus } from '@/models/Consignment';
 import { UserRole } from '@/models/User';
 import Truck from '@/models/Truck';
 import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
 // Define types for filters
 interface FilterBase {

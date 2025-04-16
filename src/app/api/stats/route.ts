@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
+// Import models to ensure all models are registered
+import '@/models';
 import Consignment, { ConsignmentStatus } from '@/models/Consignment';
 import Truck, { TruckStatus } from '@/models/Truck';
 import TruckAllocation, { AllocationStatus } from '@/models/TruckAllocation';

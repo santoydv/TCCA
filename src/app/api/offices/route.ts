@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
+// Import models to ensure all models are registered
+import '@/models';
 import Office from '@/models/Office';
 
 // GET all offices

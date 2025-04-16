@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectToDatabase from '@/lib/mongodb';
-import Consignment, { ConsignmentStatus } from '@/models/Consignment';
+// Import models to ensure all models are registered
+import '@/models';
+import Consignment, { ConsignmentDocument, ConsignmentStatus } from '@/models/Consignment';
 import { createConsignment, checkAndAllocateTruck } from '@/lib/services/consignment-service';
 import { Types } from 'mongoose';
 
@@ -65,18 +67,16 @@ export async function POST(request: NextRequest) {
       volume: Number(data.volume),
       sender: {
         name: data.sender.name,
-        address: data.sender.address,
         contact: data.sender.contact,
       },
       receiver: {
         name: data.receiver.name,
-        address: data.receiver.address,
         contact: data.receiver.contact,
       },
       sourceOffice: new Types.ObjectId(data.sourceOffice),
       destinationOffice: new Types.ObjectId(data.destinationOffice),
       receivedDate: new Date(),
-    });
+    } as Omit<ConsignmentDocument, '_id' | 'createdAt' | 'updatedAt' | 'trackingNumber' | 'charge' | 'status' | 'truck' | 'dispatchDate' | 'deliveredAt'>);
     
     return NextResponse.json(consignment, { status: 201 });
   } catch (error) {
