@@ -6,12 +6,12 @@ import { Types } from 'mongoose';
 // GET office by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -42,12 +42,12 @@ export async function GET(
 // PATCH - update office
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -110,12 +110,12 @@ export async function PATCH(
 // DELETE office
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    const id = context.params.id;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
