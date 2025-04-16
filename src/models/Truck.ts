@@ -1,10 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { TruckStatus } from '@/types';
+
+export { TruckStatus };
 
 export interface TruckDocument extends Document {
   registrationNumber: string;
   truckModel: string;
   capacity: number;
   office: mongoose.Types.ObjectId;
+  status: TruckStatus;
   maintenanceStatus: string;
   lastMaintenance: Date;
   createdAt: Date;
@@ -32,6 +36,11 @@ const TruckSchema = new Schema<TruckDocument>(
       type: Schema.Types.ObjectId,
       ref: 'Office',
       required: [true, 'Office is required'],
+    },
+    status: {
+      type: String,
+      enum: Object.values(TruckStatus),
+      default: TruckStatus.AVAILABLE,
     },
     maintenanceStatus: {
       type: String,

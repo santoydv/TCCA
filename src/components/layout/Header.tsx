@@ -46,9 +46,9 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/dashboard" className="text-xl font-bold text-primary-700 flex items-center">
+            <Link href="/dashboard" className="text-xl font-bold text-black flex items-center">
               <svg 
-                className="h-8 w-8 mr-2 text-primary-600" 
+                className="h-8 w-8 mr-2 text-primary-700" 
                 xmlns="http://www.w3.org/2000/svg" 
                 fill="none" 
                 viewBox="0 0 24 24" 
@@ -70,10 +70,10 @@ export default function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-md text-sm font-bold transition-colors ${
                       isActive
-                        ? 'bg-primary-600 text-white font-semibold'
-                        : 'text-gray-700 hover:bg-primary-100 hover:text-primary-800'
+                        ? 'bg-primary-700 text-black font-bold'
+                        : 'text-black hover:bg-primary-200 hover:text-black'
                     }`}
                   >
                     {item.label}
@@ -86,16 +86,16 @@ export default function Header() {
             {session ? (
               <>
                 <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold text-sm mr-2">
+                  <div className="h-8 w-8 rounded-full bg-primary-700 text-black flex items-center justify-center font-bold text-sm mr-2">
                     {session.user?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
-                  <span className="text-sm font-medium text-gray-800 hidden sm:inline-block">
+                  <span className="text-sm font-bold text-black hidden sm:inline-block">
                     {session.user?.name}
                   </span>
                 </div>
                 <Button
                   variant="outline"
-                  className="border-primary-600 text-primary-700 hover:bg-primary-100"
+                  className="border-primary-700 text-black hover:bg-primary-100"
                   onClick={() => signOut({ callbackUrl: '/' })}
                 >
                   Logout
@@ -103,7 +103,7 @@ export default function Header() {
               </>
             ) : (
               <Link href="/auth/login">
-                <Button variant="default" className="bg-primary-600 hover:bg-primary-800">
+                <Button variant="default" className="bg-primary-700 hover:bg-primary-800 text-black">
                   Login
                 </Button>
               </Link>

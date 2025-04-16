@@ -1,7 +1,8 @@
 import connectToDatabase from '../mongodb';
-import Consignment, { ConsignmentStatus, IConsignment } from '@/models/Consignment';
-import TruckAllocation, { AllocationStatus } from '@/models/TruckAllocation';
-import Truck, { TruckStatus } from '@/models/Truck';
+import Consignment, { ConsignmentDocument } from '@/models/Consignment';
+import { ConsignmentStatus, TruckStatus } from '@/types';
+import TruckAllocation, { AllocationStatus, ITruckAllocation } from '@/models/TruckAllocation';
+import Truck from '@/models/Truck';
 import { Types } from 'mongoose';
 
 // Calculate transport charge based on volume and destination
@@ -20,14 +21,14 @@ export const calculateCharge = (
 
 // Create a new consignment
 export const createConsignment = async (
-  consignmentData: Omit<IConsignment, '_id' | 'createdAt' | 'updatedAt' | 'consignmentNumber' | 'charge' | 'status' | 'truck' | 'dispatchDate' | 'deliveryDate'>
-): Promise<IConsignment> => {
+  consignmentData: Omit<ConsignmentDocument, '_id' | 'createdAt' | 'updatedAt' | 'trackingNumber' | 'charge' | 'status' | 'truck' | 'dispatchDate' | 'deliveredAt'>
+): Promise<ConsignmentDocument> => {
   await connectToDatabase();
   
   // Generate a unique consignment number (timestamp + random string)
   const timestamp = Date.now().toString();
   const randomString = Math.random().toString(36).substring(2, 7).toUpperCase();
-  const consignmentNumber = `CN-${timestamp.substring(timestamp.length - 6)}-${randomString}`;
+  const trackingNumber = `CN-${timestamp.substring(timestamp.length - 6)}-${randomString}`;
   
   // Calculate charge
   const charge = calculateCharge(
@@ -38,12 +39,12 @@ export const createConsignment = async (
   
   const newConsignment = await Consignment.create({
     ...consignmentData,
-    consignmentNumber,
+    trackingNumber,
     charge,
     status: ConsignmentStatus.RECEIVED,
     truck: null,
     dispatchDate: null,
-    deliveryDate: null,
+    deliveredAt: null,
   });
   
   // Check if we need to allocate a truck based on total volume for this destination
@@ -56,10 +57,10 @@ export const createConsignment = async (
 };
 
 // Get consignment details by number
-export const getConsignmentByNumber = async (consignmentNumber: string): Promise<IConsignment | null> => {
+export const getConsignmentByNumber = async (trackingNumber: string): Promise<ConsignmentDocument | null> => {
   await connectToDatabase();
   
-  return Consignment.findOne({ consignmentNumber });
+  return Consignment.findOne({ trackingNumber });
 };
 
 // Check if total volume for a destination has reached 500 cubic meters and allocate a truck if needed
@@ -84,7 +85,7 @@ export const checkAndAllocateTruck = async (
   if (totalVolume >= 500) {
     // Find an available truck at this office
     const availableTruck = await Truck.findOne({
-      currentOffice: new Types.ObjectId(sourceOfficeId),
+      office: new Types.ObjectId(sourceOfficeId),
       status: TruckStatus.AVAILABLE
     });
     
@@ -132,7 +133,7 @@ export const getConsignmentsByDestination = async (
   destinationOfficeId: string,
   startDate?: Date,
   endDate?: Date
-): Promise<{ consignments: IConsignment[]; totalVolume: number; totalRevenue: number }> => {
+): Promise<{ consignments: ConsignmentDocument[]; totalVolume: number; totalRevenue: number }> => {
   await connectToDatabase();
   
   const query: any = { destinationOffice: new Types.ObjectId(destinationOfficeId) };
