@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DateRange } from 'react-day-picker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -79,7 +79,8 @@ type Office = {
   name: string;
 };
 
-export default function DeliveryReports() {
+// Client component that uses useSearchParams
+function DeliveryReportsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -536,140 +537,145 @@ export default function DeliveryReports() {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <Link href="/reports">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold">Delivery Reports</h1>
-            <p className="text-muted-foreground">
-              Analyze delivery performance and statistics
-            </p>
-          </div>
-        </div>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href="/reports"
+          className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800"
+        >
+          <ArrowLeft size={18} />
+          <span>Back to Reports</span>
+        </Link>
         
-        <Button variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
+        <h1 className="text-2xl font-bold">Delivery Reports</h1>
+        
+        <Button variant="outline" className="flex items-center gap-2">
+          <Download size={16} />
           Export CSV
         </Button>
       </div>
       
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Report Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-sm font-medium mb-2">Date Range</p>
-              <DateRangePicker 
-                dateRange={dateRange} 
-                setDateRange={setDateRange} 
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <p className="text-sm font-medium mb-2">Source Office</p>
-              <Select value={sourceOffice} onValueChange={setSourceOffice}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select source office" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Offices</SelectItem>
-                  {offices.map((office) => (
-                    <SelectItem key={office._id} value={office._id}>
-                      {office.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <p className="text-sm font-medium mb-2">Destination Office</p>
-              <Select value={destinationOffice} onValueChange={setDestinationOffice}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select destination office" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Offices</SelectItem>
-                  {offices.map((office) => (
-                    <SelectItem 
-                      key={office._id} 
-                      value={office._id}
-                      disabled={office._id === sourceOffice && sourceOffice !== 'all'}
-                    >
-                      {office.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-end">
-              <Button className="w-full" onClick={applyFilters}>
-                Apply Filters
-              </Button>
-            </div>
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1">Date Range</label>
+            <DateRangePicker
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              className="w-full"
+            />
           </div>
-        </CardContent>
-      </Card>
-      
-      <Tabs value={reportType} onValueChange={setReportType} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-8">
-          <TabsTrigger value="performance">
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Performance
-          </TabsTrigger>
-          <TabsTrigger value="monthly">
-            <Clock className="mr-2 h-4 w-4" />
-            Monthly Trends
-          </TabsTrigger>
-          <TabsTrigger value="routes">
-            <XCircle className="mr-2 h-4 w-4" />
-            Routes Analysis
-          </TabsTrigger>
-        </TabsList>
-        
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Spinner size="lg" />
+          
+          <div className="w-full md:w-64">
+            <label className="block text-sm font-medium mb-1">Source Office</label>
+            <Select value={sourceOffice} onValueChange={setSourceOffice}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select source office" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Offices</SelectItem>
+                {offices.map((office) => (
+                  <SelectItem key={office._id} value={office._id}>
+                    {office.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        ) : error ? (
-          <div className="p-8 text-center">
-            <p className="text-red-500">{error}</p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={applyFilters}
-            >
-              Retry
+          
+          <div className="w-full md:w-64">
+            <label className="block text-sm font-medium mb-1">Destination Office</label>
+            <Select value={destinationOffice} onValueChange={setDestinationOffice}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select destination office" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Offices</SelectItem>
+                {offices.map((office) => (
+                  <SelectItem key={office._id} value={office._id}>
+                    {office.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex items-end">
+            <Button onClick={applyFilters} className="flex items-center gap-2 h-10">
+              <Filter size={16} />
+              Apply Filters
             </Button>
           </div>
-        ) : (
-          <>
-            <TabsContent value="performance">
-              {renderPerformanceReport()}
-            </TabsContent>
-            
-            <TabsContent value="monthly">
-              {renderMonthlyReport()}
-            </TabsContent>
-            
-            <TabsContent value="routes">
-              {renderRoutesReport()}
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+        </div>
+        
+        <Tabs value={reportType} onValueChange={setReportType} className="mt-6">
+          <TabsList className="mb-6">
+            <TabsTrigger value="performance">Performance Overview</TabsTrigger>
+            <TabsTrigger value="monthly">Monthly Trends</TabsTrigger>
+            <TabsTrigger value="routes">Routes Analysis</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="performance" className="pt-4">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-600 py-8">{error}</div>
+            ) : reportData?.performance ? (
+              // Render performance report content
+              <div className="space-y-6">
+                {renderPerformanceReport()}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">No performance data available</div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="monthly" className="pt-4">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-600 py-8">{error}</div>
+            ) : reportData?.monthly ? (
+              // Render monthly report content
+              <div className="space-y-6">
+                {renderMonthlyReport()}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">No monthly data available</div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="routes" className="pt-4">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-600 py-8">{error}</div>
+            ) : reportData?.routes ? (
+              // Render routes report content
+              <div className="space-y-6">
+                {renderRoutesReport()}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">No routes data available</div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function DeliveryReports() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner /></div>}>
+      <DeliveryReportsClient />
+    </Suspense>
   );
 } 
