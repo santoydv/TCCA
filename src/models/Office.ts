@@ -1,12 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export enum OfficeType {
+  HEAD_OFFICE = 'HEAD_OFFICE',
+  BRANCH_OFFICE = 'BRANCH_OFFICE'
+}
+
 export interface OfficeDocument extends Document {
   name: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  phone: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
+  type: OfficeType;
+  phoneNumber: string;
   email: string;
   createdAt: Date;
   updatedAt: Date;
@@ -21,26 +30,39 @@ const OfficeSchema = new Schema<OfficeDocument>(
       unique: true,
     },
     address: {
-      type: String,
-      required: [true, 'Office address is required'],
-      trim: true,
+      street: {
+        type: String,
+        required: [true, 'Street address is required'],
+        trim: true,
+      },
+      city: {
+        type: String,
+        required: [true, 'City is required'],
+        trim: true,
+      },
+      state: {
+        type: String,
+        required: [true, 'State is required'],
+        trim: true,
+      },
+      country: {
+        type: String,
+        required: [true, 'Country is required'],
+        trim: true,
+      },
+      postalCode: {
+        type: String,
+        required: [true, 'Postal code is required'],
+        trim: true,
+      },
     },
-    city: {
+    type: {
       type: String,
-      required: [true, 'City is required'],
-      trim: true,
+      enum: Object.values(OfficeType),
+      required: [true, 'Office type is required'],
+      default: OfficeType.BRANCH_OFFICE,
     },
-    state: {
-      type: String,
-      required: [true, 'State is required'],
-      trim: true,
-    },
-    zipCode: {
-      type: String,
-      required: [true, 'Zip code is required'],
-      trim: true,
-    },
-    phone: {
+    phoneNumber: {
       type: String,
       required: [true, 'Phone number is required'],
       trim: true,
