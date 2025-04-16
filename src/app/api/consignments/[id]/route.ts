@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 
 // GET consignment by ID
 export async function GET(
-  request: NextRequest,
+  request: NextRequest, 
   context: { params: { id: string } }
 ) {
   try {
@@ -44,7 +44,7 @@ export async function GET(
 
 // PATCH - update consignment
 export async function PATCH(
-  request: NextRequest,
+  request: NextRequest, 
   context: { params: { id: string } }
 ) {
   try {
@@ -62,7 +62,16 @@ export async function PATCH(
     const data = await request.json();
     const allowedUpdates = ['status', 'truck', 'dispatchDate', 'deliveryDate'];
     
-    const updates: any = {};
+    // Define the updates object with proper TypeScript interface
+    interface Updates {
+      status?: ConsignmentStatus;
+      truck?: string;
+      dispatchDate?: Date;
+      deliveryDate?: Date;
+      [key: string]: any;
+    }
+    
+    const updates: Updates = {};
     Object.keys(data).forEach(key => {
       if (allowedUpdates.includes(key)) {
         updates[key] = data[key];
@@ -102,7 +111,7 @@ export async function PATCH(
 
 // DELETE consignment
 export async function DELETE(
-  request: NextRequest,
+  request: NextRequest, 
   context: { params: { id: string } }
 ) {
   try {
